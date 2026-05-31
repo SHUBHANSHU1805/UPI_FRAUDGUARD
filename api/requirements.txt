@@ -4,10 +4,10 @@ flask-jwt-extended==4.6.0
 flask-sqlalchemy==3.1.1
 flask-bcrypt==1.0.1
 sqlalchemy==2.0.32
-scikit-learn==1.5.1
-xgboost==2.1.1
-imbalanced-learn==0.12.3
-numpy==1.26.4
-pandas==2.2.2
+scikit-learn>=1.6.0
+xgboost>=2.1.2
+imbalanced-learn>=0.13.0
+numpy>=2.1.0
+pandas>=2.2.3
 joblib==1.4.2
 python-dotenv==1.0.1
