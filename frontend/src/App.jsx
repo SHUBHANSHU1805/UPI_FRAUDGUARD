@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage.jsx";
-import RegisterPage from "./pages/RegisterPage.jsx";
-import DashboardPage from "./pages/DashboardPage.jsx";
+import LoginPage from "../pages/Login.jsx";
+import RegisterPage from "../pages/Register.jsx";
+import DashboardPage from "../pages/Dashboard.jsx";
 
 /* ── Protected wrapper ──────────────────────────────────────────────────────── */
 function Protected({ children }) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { AuthCard, InputField, SubmitBtn, T } from "../components/AuthCard";
+import { useAuth } from "../src/hooks/useAuth";
+import { AuthCard, InputField, SubmitBtn, T } from "../src/components/AuthCard";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");

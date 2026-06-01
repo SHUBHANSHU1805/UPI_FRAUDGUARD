@@ -10,8 +10,8 @@ import {
     AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { predictAPI } from "../api";
-import { useAuth } from "../hooks/useAuth";
+import { predictAPI } from "../src/api";
+import { useAuth } from "../src/hooks/useAuth";
 
 /* ─── Theme ─────────────────────────────────────────────────────────────────── */
 const T = {
