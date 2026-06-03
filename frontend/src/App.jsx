@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "../pages/Login.jsx";
 import RegisterPage from "../pages/Register.jsx";
 import DashboardPage from "../pages/Dashboard.jsx";
+import LandingPage from "../pages/Landing.jsx";
+import DemoPage from "../pages/Demo.jsx";
 
 /* ── Protected wrapper ──────────────────────────────────────────────────────── */
 function Protected({ children }) {
@@ -12,7 +14,7 @@ function Protected({ children }) {
 /* ── Public wrapper (redirect away if already logged in) ────────────────────── */
 function PublicOnly({ children }) {
     const token = localStorage.getItem("fraudguard_access");
-    return token ? <Navigate to="/" replace /> : children;
+    return token ? <Navigate to="/dashboard" replace /> : children;
 }
 
 export default function App() {
@@ -21,7 +23,9 @@ export default function App() {
             <Routes>
                 <Route path="/login" element={<PublicOnly><LoginPage /></PublicOnly>} />
                 <Route path="/register" element={<PublicOnly><RegisterPage /></PublicOnly>} />
-                <Route path="/" element={<Protected><DashboardPage /></Protected>} />
+                <Route path="/dashboard" element={<Protected><DashboardPage /></Protected>} />
+                <Route path="/demo" element={<DemoPage />} />
+                <Route path="/" element={<LandingPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </BrowserRouter>

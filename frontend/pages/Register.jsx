@@ -1,123 +1,233 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useAuth } from "../src/hooks/useAuth";
-import { AuthCard, InputField, SubmitBtn, T } from "../src/components/AuthCard";
+import { Eye, EyeOff, Info, AlertTriangle, Check, X } from "lucide-react";
+import ParticleNetwork from "../src/components/ParticleNetwork";
 
 const rules = [
-    { test: (p) => p.length >= 8, label: "At least 8 characters" },
-    { test: (p) => /[A-Z]/.test(p), label: "One uppercase letter" },
-    { test: (p) => /[0-9]/.test(p), label: "One number" },
-    { test: (p) => /[^A-Za-z0-9]/.test(p), label: "One special character" },
+  { test: (p) => p.length >= 8, label: "8+ characters" },
+  { test: (p) => /[A-Z]/.test(p), label: "Uppercase letter" },
+  { test: (p) => /[0-9]/.test(p), label: "One number" },
+  { test: (p) => /[^A-Za-z0-9]/.test(p), label: "Special character" },
 ];
 
 function PasswordStrength({ password }) {
-    if (!password) return null;
-    const passed = rules.filter(r => r.test(password)).length;
-    const colors = ["#f85149", "#d29922", "#d29922", "#3fb950", "#3fb950"];
-    return (
-        <div style={{ marginTop: -8, marginBottom: 14 }}>
-            <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
-                {[0, 1, 2, 3].map(i => (
-                    <div key={i} style={{
-                        flex: 1, height: 3, borderRadius: 2,
-                        background: i < passed ? colors[passed] : T.faint,
-                        transition: "background .3s",
-                    }} />
-                ))}
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {rules.map(r => (
-                    <span key={r.label} style={{
-                        fontSize: 10, color: r.test(password) ? T.green : T.muted,
-                        transition: "color .3s",
-                    }}>
-                        {r.test(password) ? "✓" : "·"} {r.label}
-                    </span>
-                ))}
-            </div>
-        </div>
-    );
+  if (!password) return null;
+  const passed = rules.filter(r => r.test(password)).length;
+  
+  // Progress bar colors
+  const colors = ["bg-cyber-red", "bg-cyber-amber", "bg-cyber-amber", "bg-cyber-green", "bg-cyber-green"];
+  const colorClass = colors[passed] || "bg-cyber-muted-dark";
+
+  return (
+    <div className="mt-2 mb-4">
+      {/* Bars */}
+      <div className="flex gap-1.5 mb-2.5">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="flex-1 h-1 rounded-sm bg-cyber-surf2-dark overflow-hidden">
+            <div className={`h-full ${i < passed ? colorClass : "bg-transparent"} transition-all duration-300`} />
+          </div>
+        ))}
+      </div>
+      {/* List */}
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+        {rules.map(r => {
+          const ok = r.test(password);
+          return (
+            <span key={r.label} className={`text-[9px] flex items-center gap-1 font-semibold ${ok ? "text-cyber-green" : "text-cyber-muted-dark"} transition-colors`}>
+              {ok ? <Check className="w-2.5 h-2.5" /> : <span className="w-2.5 h-2.5 text-center leading-none">·</span>}
+              {r.label}
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export default function RegisterPage() {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirm, setConfirm] = useState("");
-    const [fieldErr, setFieldErr] = useState({});
-    const { register, loading, error, setError } = useAuth();
-    const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [fieldErr, setFieldErr] = useState({});
+  const { register, loading, error, setError } = useAuth();
+  const navigate = useNavigate();
 
-    function validate() {
-        const e = {};
-        if (!name.trim()) e.name = "Name is required.";
-        if (!email.trim() || !email.includes("@")) e.email = "Valid email required.";
-        if (password.length < 8) e.password = "Minimum 8 characters.";
-        if (!rules[2].test(password)) e.password = "Must contain a number.";
-        if (password !== confirm) e.confirm = "Passwords do not match.";
-        setFieldErr(e);
-        return Object.keys(e).length === 0;
-    }
+  function validate() {
+    const e = {};
+    if (!name.trim()) e.name = "Name is required.";
+    if (!email.trim() || !email.includes("@")) e.email = "Valid email required.";
+    if (password.length < 8) e.password = "Minimum 8 characters.";
+    if (!/[0-9]/.test(password)) e.password = "Must contain a number.";
+    if (password !== confirm) e.confirm = "Passwords do not match.";
+    setFieldErr(e);
+    return Object.keys(e).length === 0;
+  }
 
-    async function handleSubmit() {
-        if (!validate()) return;
-        const result = await register(name.trim(), email.trim().toLowerCase(), password);
-        if (result.ok) navigate("/");
-    }
+  async function handleSubmit(e) {
+    if (e) e.preventDefault();
+    if (!validate()) return;
+    const result = await register(name.trim(), email.trim().toLowerCase(), password);
+    if (result.ok) navigate("/dashboard");
+  }
 
-    return (
-        <AuthCard>
-            <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 17, color: T.text, marginBottom: 6 }}>
-                Create account
+  return (
+    <div className="relative min-h-screen bg-[#0d1117] text-[#e6edf3] font-mono flex items-center justify-center p-4 overflow-hidden">
+      {/* Background Particles & Grid */}
+      <ParticleNetwork theme="dark" />
+      <div className="absolute inset-0 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none z-0" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", damping: 15 }}
+        className="relative z-10 w-full max-w-[420px] bg-cyber-surf-dark/40 border border-cyber-border-dark/60 backdrop-blur-md rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyber-blue/45 transition-colors duration-500"
+      >
+        {/* Header / Logo */}
+        <div className="text-center mb-6 select-none">
+          <div className="w-12 h-12 rounded-xl bg-cyber-redBg border border-cyber-red/30 inline-flex items-center justify-center text-2xl mb-4 shadow-[0_0_20px_rgba(248,81,73,0.15)]">
+            🛡
+          </div>
+          <h2 className="font-syne font-extrabold text-xl text-white">Create Profile</h2>
+          <p className="text-[10px] text-cyber-muted-dark uppercase tracking-wider mt-1">Agent Enlistment</p>
+        </div>
+
+        {/* Global Error Alert */}
+        {error && (
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="mb-5 p-3 rounded-lg bg-cyber-redBg border border-cyber-red/30 text-cyber-red text-xs flex items-start gap-2.5"
+          >
+            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <span className="font-bold">Error:</span> {error}
             </div>
-            <div style={{ fontSize: 12, color: T.muted, marginBottom: 22 }}>
-                Join FraudGuard to start monitoring UPI transactions.
-            </div>
+            <button 
+              onClick={() => setError("")} 
+              className="text-cyber-red font-bold hover:text-white transition-colors text-sm leading-none"
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
 
-            {error && (
-                <div style={{
-                    background: T.redBg, border: `1px solid ${T.red}44`, borderRadius: 6,
-                    padding: "10px 12px", fontSize: 12, color: T.red, marginBottom: 16,
-                    display: "flex", justifyContent: "space-between", alignItems: "center",
-                }}>
-                    <span>{error}</span>
-                    <button onClick={() => setError("")} style={{ background: "none", border: "none", color: T.red, cursor: "pointer", fontSize: 16 }}>×</button>
-                </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+          <div>
+            <label className="text-[9px] uppercase tracking-wider text-cyber-muted-dark font-bold block mb-1">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setFieldErr((p) => ({ ...p, name: "" }));
+              }}
+              placeholder="Arjun Sharma"
+              className={`w-full bg-[#161b22]/80 border ${
+                fieldErr.name ? "border-cyber-red" : "border-cyber-border-dark"
+              } rounded-lg px-3 py-2 text-xs focus:border-cyber-blue outline-none text-white transition-all`}
+            />
+            {fieldErr.name && (
+              <span className="text-[10px] text-cyber-red mt-0.5 block">{fieldErr.name}</span>
             )}
+          </div>
 
-            <InputField
-                label="Full Name" value={name}
-                onChange={e => { setName(e.target.value); setFieldErr(p => ({ ...p, name: "" })); }}
-                placeholder="Arjun Sharma" error={fieldErr.name}
+          <div>
+            <label className="text-[9px] uppercase tracking-wider text-cyber-muted-dark font-bold block mb-1">
+              Operator Email
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setFieldErr((p) => ({ ...p, email: "" }));
+              }}
+              placeholder="arjun@fraudguard.net"
+              className={`w-full bg-[#161b22]/80 border ${
+                fieldErr.email ? "border-cyber-red" : "border-cyber-border-dark"
+              } rounded-lg px-3 py-2 text-xs focus:border-cyber-blue outline-none text-white transition-all`}
             />
-            <InputField
-                label="Email" type="email" value={email}
-                onChange={e => { setEmail(e.target.value); setFieldErr(p => ({ ...p, email: "" })); }}
-                placeholder="you@example.com" error={fieldErr.email}
-            />
-            <InputField
-                label="Password" type="password" value={password}
-                onChange={e => { setPassword(e.target.value); setFieldErr(p => ({ ...p, password: "" })); }}
-                placeholder="Min. 8 chars with a number" error={fieldErr.password}
-            />
-            <PasswordStrength password={password} />
+            {fieldErr.email && (
+              <span className="text-[10px] text-cyber-red mt-0.5 block">{fieldErr.email}</span>
+            )}
+          </div>
 
-            <InputField
-                label="Confirm Password" type="password" value={confirm}
-                onChange={e => { setConfirm(e.target.value); setFieldErr(p => ({ ...p, confirm: "" })); }}
-                placeholder="Repeat password" error={fieldErr.confirm}
-            />
-
-            <SubmitBtn loading={loading} onClick={handleSubmit}>
-                {loading ? "Creating account…" : "Create Account →"}
-            </SubmitBtn>
-
-            <div style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: T.muted }}>
-                Already have an account?{" "}
-                <Link to="/login" style={{ color: T.blue, textDecoration: "none", fontWeight: 600 }}>
-                    Sign in
-                </Link>
+          <div>
+            <label className="text-[9px] uppercase tracking-wider text-cyber-muted-dark font-bold block mb-1">
+              Create Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setFieldErr((p) => ({ ...p, password: "" }));
+                }}
+                placeholder="Min. 8 chars with a number"
+                className={`w-full bg-[#161b22]/80 border ${
+                  fieldErr.password ? "border-cyber-red" : "border-cyber-border-dark"
+                } rounded-lg pl-3 pr-10 py-2 text-xs focus:border-cyber-blue outline-none text-white transition-all`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPass(!showPass)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-cyber-muted-dark hover:text-white transition-colors"
+              >
+                {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
-        </AuthCard>
-    );
+            <PasswordStrength password={password} />
+            {fieldErr.password && (
+              <span className="text-[10px] text-cyber-red mt-0.5 block">{fieldErr.password}</span>
+            )}
+          </div>
+
+          <div>
+            <label className="text-[9px] uppercase tracking-wider text-cyber-muted-dark font-bold block mb-1">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              value={confirm}
+              onChange={(e) => {
+                setConfirm(e.target.value);
+                setFieldErr((p) => ({ ...p, confirm: "" }));
+              }}
+              placeholder="Repeat password"
+              className={`w-full bg-[#161b22]/80 border ${
+                fieldErr.confirm ? "border-cyber-red" : "border-cyber-border-dark"
+              } rounded-lg px-3 py-2 text-xs focus:border-cyber-blue outline-none text-white transition-all`}
+            />
+            {fieldErr.confirm && (
+              <span className="text-[10px] text-cyber-red mt-0.5 block">{fieldErr.confirm}</span>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-cyber-blue text-black font-syne font-bold text-xs rounded-lg hover:bg-opacity-90 transition-all mt-3 shadow-[0_0_15px_rgba(88,166,255,0.15)] flex items-center justify-center"
+          >
+            {loading ? "ENLISTING PROFILE IN DATABASE..." : "ENLIST NEW OPERATOR →"}
+          </button>
+        </form>
+
+        {/* Secondary Navigation */}
+        <div className="text-center mt-6 text-xs text-cyber-muted-dark">
+          Already registered?{" "}
+          <Link to="/login" className="text-cyber-blue hover:underline font-semibold font-syne">
+            Operator Sign In
+          </Link>
+        </div>
+      </motion.div>
+    </div>
+  );
 }

@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-300;
+  }
+}
+
+/* Glassmorphism custom classes */
+.glass-card {
+  background: rgba(22, 27, 34, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(88, 166, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(88, 166, 255, 0.08);
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(208, 215, 222, 0.6);
+  box-shadow: 0 8px 32px 0 rgba(140, 149, 159, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card-light:hover {
+  border-color: rgba(88, 166, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(88, 166, 255, 0.12);
+}
+
+/* Gradient mesh background */
+.gradient-mesh {
+  background: linear-gradient(-45deg, #0d1117, #161b22, #0d2036, #1b0a2a);
+  background-size: 400% 400%;
+}
+
+.gradient-mesh-light {
+  background: linear-gradient(-45deg, #f6f8fa, #ffffff, #e6f0fa, #f5f0fa);
+  background-size: 400% 400%;
+}
+
+/* Scrollbar tweaks */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #8b949e;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #30363d;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
