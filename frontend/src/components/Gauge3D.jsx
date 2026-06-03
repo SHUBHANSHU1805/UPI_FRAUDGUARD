@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useRef, useEffect, useState, useMemo } from "react";
+import { Canvas } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -7,19 +7,36 @@ function GaugeInner({ value }) {
   const activeRingRef = useRef();
   const [currentVal, setCurrentVal] = useState(0);
 
-  // Smoothly animate the value towards target value
-  useFrame((state) => {
-    const diff = value - currentVal;
-    if (Math.abs(diff) > 0.001) {
-      const nextVal = currentVal + diff * 0.1; // Lerp factor
-      setCurrentVal(nextVal);
-    } else {
-      setCurrentVal(value);
-    }
-  });
+  // Smoothly animate the value towards target value in React space
+  useEffect(() => {
+    let animationFrameId;
+    let start = currentVal;
+    const end = value;
+    const duration = 800; // ms
+    const startTime = performance.now();
+
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const easeOutQuad = progress * (2 - progress);
+      const val = easeOutQuad * (end - start) + start;
+      setCurrentVal(val);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [value]);
 
   // Calculate color based on value
-  const color = useMemoColor(currentVal);
+  const color = useMemo(() => {
+    if (currentVal < 0.3) return "#3fb950"; // Green
+    if (currentVal < 0.7) return "#d29922"; // Amber
+    return "#f85149"; // Red
+  }, [currentVal]);
 
   return (
     <group rotation={[0, 0, Math.PI]} position={[0, -0.2, 0]}>
@@ -64,13 +81,6 @@ function GaugeInner({ value }) {
       </Html>
     </group>
   );
-}
-
-// Helper hook to resolve color dynamically
-function useMemoColor(val) {
-  if (val < 0.3) return "#3fb950"; // Green
-  if (val < 0.7) return "#d29922"; // Amber
-  return "#f85149"; // Red
 }
 
 function GaugeFallback({ value }) {
